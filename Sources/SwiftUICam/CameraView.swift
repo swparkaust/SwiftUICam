@@ -25,11 +25,12 @@ public struct CameraView: UIViewControllerRepresentable {
     private var pinchToZoom: Bool
     private var tapToFocus: Bool
     private var doubleTapCameraSwitch: Bool
+    private var saveToCameraRoll: Bool
     
     private var didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
     private var didFinishProcessingPhoto: ((UIImage) -> Void)?
     
-    public init(events: UserEvents, applicationName: String, preferredStartingCameraType: AVCaptureDevice.DeviceType = .builtInWideAngleCamera, preferredStartingCameraPosition: AVCaptureDevice.Position = .back, focusImage: String? = nil, pinchToZoom: Bool = true, tapToFocus: Bool = true, doubleTapCameraSwitch: Bool = true, didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)? = nil, didFinishProcessingPhoto: ((UIImage) -> Void)? = nil) {
+    public init(events: UserEvents, applicationName: String, preferredStartingCameraType: AVCaptureDevice.DeviceType = .builtInWideAngleCamera, preferredStartingCameraPosition: AVCaptureDevice.Position = .back, focusImage: String? = nil, pinchToZoom: Bool = true, tapToFocus: Bool = true, doubleTapCameraSwitch: Bool = true, saveToCameraRoll: Bool = true, didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)? = nil, didFinishProcessingPhoto: ((UIImage) -> Void)? = nil) {
         self.events = events
         
         self.applicationName = applicationName
@@ -41,6 +42,7 @@ public struct CameraView: UIViewControllerRepresentable {
         self.pinchToZoom = pinchToZoom
         self.tapToFocus = tapToFocus
         self.doubleTapCameraSwitch = doubleTapCameraSwitch
+        self.saveToCameraRoll = saveToCameraRoll
         
         self.didFinishSavingWithError = didFinishSavingWithError
         self.didFinishProcessingPhoto = didFinishProcessingPhoto
@@ -59,6 +61,7 @@ public struct CameraView: UIViewControllerRepresentable {
         cameraViewController.pinchToZoom = pinchToZoom
         cameraViewController.tapToFocus = tapToFocus
         cameraViewController.doubleTapCameraSwitch = doubleTapCameraSwitch
+        cameraViewController.saveToCameraRoll = saveToCameraRoll
         
         return cameraViewController
     }
