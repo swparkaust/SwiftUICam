@@ -95,7 +95,7 @@ public struct CameraView: UIViewControllerRepresentable {
         var saveCompletionHandler: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
         var processCompletionHandler: ((UIImage) -> Void)?
         
-        init(_ parent: CameraView, saveCompletionHandler: @escaping ((UIImage, NSError?, UnsafeRawPointer) -> Void)?, processCompletionHandler: @escaping ((UIImage) -> Void)?) {
+        init(_ parent: CameraView, saveCompletionHandler: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?, processCompletionHandler: ((UIImage) -> Void)?) {
             self.parent = parent
             self.saveCompletionHandler = saveCompletionHandler
             self.processCompletionHandler = processCompletionHandler
@@ -129,7 +129,7 @@ public struct CameraView: UIViewControllerRepresentable {
             
         public func didFinishSavingWithError(_ image: UIImage, error: NSError?, contextInfo: UnsafeRawPointer) {
                 if saveCompletionHandler != nil {
-                    saveCompletionHandler(image, error, contextInfo)
+                    saveCompletionHandler(image, error: error, contextInfo: contextInfo)
                 }
             }
             
