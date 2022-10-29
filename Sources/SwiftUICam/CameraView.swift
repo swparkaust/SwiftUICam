@@ -123,13 +123,13 @@ public struct CameraView: UIViewControllerRepresentable {
             
         public func didFinishProcessingPhoto(_ image: UIImage) {
                 if processCompletionHandler != nil {
-                    processCompletionHandler(image)
+                    processCompletionHandler!(image)
                 }
             }
             
         public func didFinishSavingWithError(_ image: UIImage, error: NSError?, contextInfo: UnsafeRawPointer) {
                 if saveCompletionHandler != nil {
-                    saveCompletionHandler(image, error: error, contextInfo: contextInfo)
+                    saveCompletionHandler!(image, error, contextInfo)
                 }
             }
             
