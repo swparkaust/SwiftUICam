@@ -26,7 +26,10 @@ public struct CameraView: UIViewControllerRepresentable {
     private var tapToFocus: Bool
     private var doubleTapCameraSwitch: Bool
     
-    public init(events: UserEvents, applicationName: String, preferredStartingCameraType: AVCaptureDevice.DeviceType = .builtInWideAngleCamera, preferredStartingCameraPosition: AVCaptureDevice.Position = .back, focusImage: String? = nil, pinchToZoom: Bool = true, tapToFocus: Bool = true, doubleTapCameraSwitch: Bool = true) {
+    private var didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
+    private var didFinishProcessingPhoto: ((UIImage) -> Void)?
+    
+    public init(events: UserEvents, applicationName: String, preferredStartingCameraType: AVCaptureDevice.DeviceType = .builtInWideAngleCamera, preferredStartingCameraPosition: AVCaptureDevice.Position = .back, focusImage: String? = nil, pinchToZoom: Bool = true, tapToFocus: Bool = true, doubleTapCameraSwitch: Bool = true, didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)? = nil, didFinishProcessingPhoto: ((UIImage) -> Void)? = nil) {
         self.events = events
         
         self.applicationName = applicationName
@@ -38,6 +41,9 @@ public struct CameraView: UIViewControllerRepresentable {
         self.pinchToZoom = pinchToZoom
         self.tapToFocus = tapToFocus
         self.doubleTapCameraSwitch = doubleTapCameraSwitch
+        
+        self.didFinishSavingWithError = didFinishSavingWithError
+        self.didFinishProcessingPhoto = didFinishProcessingPhoto
     }
     
     public func makeUIViewController(context: Context) -> CameraViewController {
@@ -76,16 +82,20 @@ public struct CameraView: UIViewControllerRepresentable {
     }
     
     public func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        Coordinator(self, didFinishSavingWithError: didFinishSavingWithError, didFinishProcessingPhoto: didFinishProcessingPhoto)
     }
     
     // MARK: Coordinator
     public class Coordinator: NSObject, CameraViewControllerDelegate {
         
         var parent: CameraView
+        var didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
+        var didFinishProcessingPhoto: ((UIImage) -> Void)?
         
-        init(_ parent: CameraView) {
+        init(_ parent: CameraView, didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?, didFinishProcessingPhoto: ((UIImage) -> Void)?) {
             self.parent = parent
+            self.didFinishSavingWithError = didFinishSavingWithError
+            self.didFinishProcessingPhoto = didFinishProcessingPhoto
         }
         
         public func cameraSessionStarted() {
@@ -109,11 +119,15 @@ public struct CameraView: UIViewControllerRepresentable {
             }
             
         public func didFinishProcessingPhoto(_ image: UIImage) {
-                //Not yet implemented
+                if didFinishProcessingPhoto != nil {
+                    didFinishProcessingPhoto(image)
+                }
             }
             
         public func didFinishSavingWithError(_ image: UIImage, error: NSError?, contextInfo: UnsafeRawPointer) {
-                //Not yet implemented
+                if didFinishSavingWithError != nil {
+                    didFinishSavingWithError(image, error: error, contextInfo: contextInfo)
+                }
             }
             
         public func didChangeZoomLevel(_ zoom: CGFloat) {
