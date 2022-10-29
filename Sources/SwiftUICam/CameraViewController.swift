@@ -76,6 +76,9 @@ public class CameraViewController: UIViewController {
     /// Sets whether a double tap to switch cameras is supported
     public var doubleTapCameraSwitch = true
     
+    /// Sets whether the image should be saved to Camera Roll on capture
+    public var saveToCameraRoll = true
+    
     /// Sets whether swipe vertically to zoom is supported
     public var swipeToZoom = true
     
@@ -615,11 +618,13 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
             // For now, it is only right
             let image = UIImage(cgImage: cgImageRef!, scale: 1, orientation: .right)
             
-            //2 options to save
-            //First is to use UIImageWriteToSavedPhotosAlbum
-            savePhoto(image)
-            //Second is adapting Apple documentation with data of the modified image
-            //savePhoto(image.jpegData(compressionQuality: 1)!)
+            if saveToCameraRoll {
+                //2 options to save
+                //First is to use UIImageWriteToSavedPhotosAlbum
+                savePhoto(image)
+                //Second is adapting Apple documentation with data of the modified image
+                //savePhoto(image.jpegData(compressionQuality: 1)!)
+            }
             
             
             DispatchQueue.main.async {
