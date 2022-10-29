@@ -27,10 +27,10 @@ public struct CameraView: UIViewControllerRepresentable {
     private var doubleTapCameraSwitch: Bool
     private var saveToCameraRoll: Bool
     
-    private var didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
-    private var didFinishProcessingPhoto: ((UIImage) -> Void)?
+    private var saveCompletionHandler: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
+    private var processCompletionHandler: ((UIImage) -> Void)?
     
-    public init(events: UserEvents, applicationName: String, preferredStartingCameraType: AVCaptureDevice.DeviceType = .builtInWideAngleCamera, preferredStartingCameraPosition: AVCaptureDevice.Position = .back, focusImage: String? = nil, pinchToZoom: Bool = true, tapToFocus: Bool = true, doubleTapCameraSwitch: Bool = true, saveToCameraRoll: Bool = true, didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)? = nil, didFinishProcessingPhoto: ((UIImage) -> Void)? = nil) {
+    public init(events: UserEvents, applicationName: String, preferredStartingCameraType: AVCaptureDevice.DeviceType = .builtInWideAngleCamera, preferredStartingCameraPosition: AVCaptureDevice.Position = .back, focusImage: String? = nil, pinchToZoom: Bool = true, tapToFocus: Bool = true, doubleTapCameraSwitch: Bool = true, saveToCameraRoll: Bool = true, saveCompletionHandler: ((UIImage, NSError?, UnsafeRawPointer) -> Void)? = nil, processCompletionHandler: ((UIImage) -> Void)? = nil) {
         self.events = events
         
         self.applicationName = applicationName
@@ -44,8 +44,8 @@ public struct CameraView: UIViewControllerRepresentable {
         self.doubleTapCameraSwitch = doubleTapCameraSwitch
         self.saveToCameraRoll = saveToCameraRoll
         
-        self.didFinishSavingWithError = didFinishSavingWithError
-        self.didFinishProcessingPhoto = didFinishProcessingPhoto
+        self.saveCompletionHandler = saveCompletionHandler
+        self.processCompletionHandler = processCompletionHandler
     }
     
     public func makeUIViewController(context: Context) -> CameraViewController {
@@ -85,20 +85,20 @@ public struct CameraView: UIViewControllerRepresentable {
     }
     
     public func makeCoordinator() -> Coordinator {
-        Coordinator(self, didFinishSavingWithError: didFinishSavingWithError, didFinishProcessingPhoto: didFinishProcessingPhoto)
+        Coordinator(self, saveCompletionHandler: saveCompletionHandler, processCompletionHandler: processCompletionHandler)
     }
     
     // MARK: Coordinator
     public class Coordinator: NSObject, CameraViewControllerDelegate {
         
         var parent: CameraView
-        var didFinishSavingWithError: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
-        var didFinishProcessingPhoto: ((UIImage) -> Void)?
+        var saveCompletionHandler: ((UIImage, NSError?, UnsafeRawPointer) -> Void)?
+        var processCompletionHandler: ((UIImage) -> Void)?
         
-        init(_ parent: CameraView, didFinishSavingWithError: @escaping ((UIImage, NSError?, UnsafeRawPointer) -> Void)?, didFinishProcessingPhoto: @escaping ((UIImage) -> Void)?) {
+        init(_ parent: CameraView, saveCompletionHandler: @escaping ((UIImage, NSError?, UnsafeRawPointer) -> Void)?, processCompletionHandler: @escaping ((UIImage) -> Void)?) {
             self.parent = parent
-            self.didFinishSavingWithError = didFinishSavingWithError
-            self.didFinishProcessingPhoto = didFinishProcessingPhoto
+            self.saveCompletionHandler = saveCompletionHandler
+            self.processCompletionHandler = processCompletionHandler
         }
         
         public func cameraSessionStarted() {
@@ -122,14 +122,14 @@ public struct CameraView: UIViewControllerRepresentable {
             }
             
         public func didFinishProcessingPhoto(_ image: UIImage) {
-                if didFinishProcessingPhoto != nil {
-                    didFinishProcessingPhoto(image)
+                if processCompletionHandler != nil {
+                    processCompletionHandler(image)
                 }
             }
             
         public func didFinishSavingWithError(_ image: UIImage, error: NSError?, contextInfo: UnsafeRawPointer) {
-                if didFinishSavingWithError != nil {
-                    didFinishSavingWithError(image, error, contextInfo)
+                if saveCompletionHandler != nil {
+                    saveCompletionHandler(image, error, contextInfo)
                 }
             }
             
